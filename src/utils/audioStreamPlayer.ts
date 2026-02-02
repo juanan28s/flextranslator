@@ -23,7 +23,7 @@ export class AudioStreamPlayer {
   private gainNode: GainNode | null = null;
 
   constructor() {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     this.audioContext = new AudioContextClass();
     this.gainNode = this.audioContext.createGain();
     this.gainNode.connect(this.audioContext.destination);

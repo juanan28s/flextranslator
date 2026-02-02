@@ -40,10 +40,12 @@ export class AudioRecorder {
   }
 
   /**
-   * Requests permissions and starts the processing loop.
+   * Initializes hardware and starts the processing loop.
+   * MUST be called from a user gesture stack for best results on mobile.
    */
   async start() {
     try {
+      // 1. Request microphone access immediately (User Gesture)
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
@@ -55,17 +57,17 @@ export class AudioRecorder {
 
       this.onStream(this.mediaStream);
 
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      
-      // We attempt to initialize at 16k, but browsers often ignore this hint.
+      // 2. Initialize AudioContext (User Gesture)
+      // We use the standard constructor and handle the webkit prefix safely.
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       this.audioContext = new AudioContextClass({ sampleRate: 16000 });
 
+      // 3. Force Resume (Crucial for Mobile Safari/Chrome)
       if (this.audioContext.state === 'suspended') {
         await this.audioContext.resume();
       }
 
-      // --- 2026 BEST PRACTICE: AUDIO WORKLET MIGRATION ---
-      // We load the worklet module from a URL-safe path.
+      // 4. Load the Worklet
       await this.audioContext.audioWorklet.addModule(
         new URL('./capture.worklet.ts', import.meta.url)
       );
@@ -74,23 +76,17 @@ export class AudioRecorder {
       const contextRate = this.audioContext.sampleRate;
 
       this.source = this.audioContext.createMediaStreamSource(this.mediaStream);
-      
-      // Create the worklet node that runs our CaptureProcessor
       this.workletNode = new AudioWorkletNode(this.audioContext, 'capture-processor');
 
       this.workletNode.port.onmessage = (e) => {
-        // Drop frames if the context is paused.
-        if (this.audioContext?.state === 'suspended') return;
+        if (this.audioContext?.state !== 'running') return;
 
         const inputData = e.data as Float32Array;
-        
-        // --- ADAPTIVE DOWNSAMPLING ---
         let processedData = inputData;
         if (contextRate !== targetRate) {
             processedData = downsampleBuffer(inputData, contextRate, targetRate);
         }
 
-        // Convert the Float32 samples to 16-bit PCM base64.
         const pcmBlob = createPcmBlob(processedData);
         if (pcmBlob.data) {
           this.onData(pcmBlob.data);
@@ -101,13 +97,14 @@ export class AudioRecorder {
       this.workletNode.connect(this.audioContext.destination);
 
     } catch (error) {
-      console.error("Error starting audio recorder:", error);
+      console.error("AudioRecorder Start Failed:", error);
+      this.stop(); // Clean up on failure
       throw error;
     }
   }
 
   /**
-   * Suspends hardware input without stopping the session.
+   * Suspends hardware input.
    */
   async pause() {
     if (this.audioContext && this.audioContext.state === 'running') {
@@ -125,7 +122,7 @@ export class AudioRecorder {
   }
 
   /**
-   * Stops tracks and closes contexts. Mandatory for resource management.
+   * Stops tracks and closes contexts.
    */
   stop() {
     if (this.mediaStream) {

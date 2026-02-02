@@ -34,6 +34,7 @@
 - src/constants/contexts.ts
 - src/constants/languages.ts
 - src/constants/uiTranslations.ts
+- src/global.d.ts
 - src/hooks/useLiveTranslator.ts
 - src/hooks/useLocalization.ts
 - src/lib/firebase.ts
@@ -83,6 +84,7 @@
 - **main.tsx**: Entry point and React mounting.
 - **types.ts**: Global TypeScript interfaces and enums.
 - **firebase.ts**: SDK initialization for Cloud features.
+- **global.d.ts**: Global type definitions for non-standard APIs.
 
 ### 5. Infrastructure & Scripts
 - **check_tslint.js**: Build integrity and linting CI script.

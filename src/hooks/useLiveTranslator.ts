@@ -22,7 +22,7 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
+import { GoogleGenAI, LiveServerMessage, Modality, Session } from '@google/genai';
 import { ConnectionState, TranslationLogItem } from '../types';
 import { detectLanguage } from '../utils/languageUtils';
 import { AudioRecorder } from '../utils/audioRecorder';
@@ -49,7 +49,7 @@ export const useLiveTranslator = () => {
 
   // --- REFS (Volatile hardware & session handlers) ---
   const currentItemRef = useRef<TranslationLogItem | null>(null);
-  const activeSessionRef = useRef<unknown>(null);
+  const activeSessionRef = useRef<Session | null>(null);
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
   const audioPlayerRef = useRef<AudioStreamPlayer | null>(null);
   
@@ -61,7 +61,7 @@ export const useLiveTranslator = () => {
   const disconnect = useCallback(async () => {
     if (activeSessionRef.current) {
       try {
-        await (activeSessionRef.current as { close: () => Promise<void> }).close();
+        activeSessionRef.current.close();
       } catch (e) {
         console.warn("Error closing session:", e);
       }
@@ -263,29 +263,41 @@ export const useLiveTranslator = () => {
       const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
       const dynamicPrompt = generateSystemInstruction(langA, langB, contextId);
 
+      // --- 1. HARDWARE INITIALIZATION (Immediate User Gesture) ---
+      // We start the recorder BEFORE the websocket to ensure browser permission logic 
+      // is tied to the click event and stays active.
+      let activeSession: Session | null = null;
+      
+      const recorder = new AudioRecorder(
+        (base64Data) => {
+          if (activeSession) {
+            activeSession.sendRealtimeInput({ 
+              media: { mimeType: 'audio/pcm;rate=16000', data: base64Data } 
+            });
+          }
+        },
+        (stream) => { setActiveStream(stream); }
+      );
+
+      try {
+        await recorder.start();
+        audioRecorderRef.current = recorder;
+      } catch {
+        setError("Microphone access failed.");
+        setConnectionState('disconnected');
+        return;
+      }
+
       // Initialize the audio playback engine.
       audioPlayerRef.current = new AudioStreamPlayer();
       audioPlayerRef.current.setEnabled(isLiveOutputEnabled);
 
+      // --- 2. WEBSOCKET ESTABLISHMENT ---
       const session = await ai.live.connect({
         model: LIVE_MODEL,
         callbacks: {
-          onopen: async () => {
+          onopen: () => {
             setConnectionState('connected');
-            // Connect microphone hardware to the session.
-            audioRecorderRef.current = new AudioRecorder(
-              (base64Data) => {
-                session.sendRealtimeInput({ media: { mimeType: 'audio/pcm;rate=16000', data: base64Data } });
-              },
-              (stream) => { setActiveStream(stream); }
-            );
-            
-            try {
-              await audioRecorderRef.current.start();
-            } catch {
-              setError("Microphone access failed.");
-              disconnect();
-            }
           },
           onmessage: (message: LiveServerMessage) => {
             // 1. AUDIO: Simultaneous interpretation playback.
@@ -355,6 +367,7 @@ export const useLiveTranslator = () => {
            }
         }
       });
+      activeSession = session;
       activeSessionRef.current = session;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to connect");

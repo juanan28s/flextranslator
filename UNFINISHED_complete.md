@@ -2,6 +2,8 @@
 
 ## v1.4.0 (February 2026 - Current)
 - **Firebase Migration: Phase 1**: Initialized Firebase SDK and configured project for Hosting and Future Analytics.
+- **Mobile Permission Optimization**: Refactored hardware initialization to trigger within the user-gesture stack, ensuring consistent microphone and AudioContext behavior on mobile browsers.
+- **Strict Type Safety Overhaul**: Eliminated all 'any' types and 'void hacks'. Implemented official Gemini SDK `Session` types and extended the global `Window` interface for Web Audio and File System APIs.
 - **AudioWorklet Migration**: Successfully moved all real-time audio capture and downsampling from the main thread to a dedicated `AudioWorklet` thread for zero UI jank.
 - **React 19 State Architecture**: Refactored core hooks and components to use render-phase state synchronization, aligning with 2026 React best practices.
 - **Infrastructure: Build Integrity**: Implemented `scripts/check_tslint.js` for automated validation of TypeScript integrity and ESLint health.

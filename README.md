@@ -4,7 +4,7 @@
 A professional-grade real-time simultaneous translation application leveraging the **Gemini 2.5 Native Audio (Live API)**. Designed to function as a digital UN interpreter, Flex Translator facilitates fluid, context-aware conversations across 30+ languages.
 
 ## Project Status
-*   **Current Version**: 1.3.0
+*   **Current Version**: 1.4.0
 *   **Engine**: Gemini 2.5 Native Audio (Live) & Gemini 3.0 Flash (Static)
 *   **Stability**: Stable Prototype / Beta (2026 Modernized)
 

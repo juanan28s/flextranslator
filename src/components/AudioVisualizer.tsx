@@ -62,7 +62,7 @@ export const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ stream, isPaus
 
     try {
       // Create a local AudioContext just for visualization to avoid disrupting the main interpretation Context.
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AudioContextClass();
       source = audioCtx.createMediaStreamSource(stream);
       analyser = audioCtx.createAnalyser();

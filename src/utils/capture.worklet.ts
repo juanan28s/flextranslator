@@ -15,10 +15,18 @@ declare const AudioWorkletProcessor: {
   new (options?: AudioWorkletNodeOptions): AudioWorkletProcessor;
 };
 
+interface AudioParamDescriptor {
+  name: string;
+  defaultValue?: number;
+  minValue?: number;
+  maxValue?: number;
+  automationRate?: 'a-rate' | 'k-rate';
+}
+
 declare function registerProcessor(
   name: string,
   processorCtor: (new (options?: AudioWorkletNodeOptions) => AudioWorkletProcessor) & {
-    parameterDescriptors?: unknown[];
+    parameterDescriptors?: AudioParamDescriptor[];
   }
 ): void;
 

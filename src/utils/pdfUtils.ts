@@ -18,12 +18,6 @@ import { TranslationLogItem } from '../types';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
-declare global {
-  interface Window {
-    showSaveFilePicker?: (options?: unknown) => Promise<unknown>;
-  }
-}
-
 export const generatePDF = async (items: TranslationLogItem[], filename: string): Promise<void> => {
   if (items.length === 0) return;
 
