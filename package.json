@@ -1,7 +1,7 @@
 {
   "name": "flextranslator",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.4.0",
   "type": "module",
   "// scripts": "Core build and development lifecycle scripts for the frontend application",
   "scripts": {
@@ -19,6 +19,8 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "firebase": "^12.7.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

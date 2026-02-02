@@ -1,0 +1,10 @@
+{
+  "name": "flex-translator-functions",
+  "version": "1.4.0",
+  "description": "Backend functions for Flex Translator.",
+  "dependencies": {
+    "firebase-functions": "^4.0.0",
+    "firebase-admin": "^11.0.0",
+    "@google/genai": "^1.30.0"
+  }
+}
