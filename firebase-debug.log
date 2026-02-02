@@ -1,0 +1,22 @@
+[debug] [2026-02-02T10:21:57.004Z] ----------------------------------------------------------------------
+[debug] [2026-02-02T10:21:57.005Z] Command:       /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/firebase init
+[debug] [2026-02-02T10:21:57.005Z] CLI Version:   15.5.1
+[debug] [2026-02-02T10:21:57.005Z] Platform:      android
+[debug] [2026-02-02T10:21:57.005Z] Node Version:  v24.13.0
+[debug] [2026-02-02T10:21:57.006Z] Time:          Mon Feb 02 2026 11:21:57 GMT+0100 (Central European Standard Time)
+[debug] [2026-02-02T10:21:57.006Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-02T10:21:57.007Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /data/data/com.termux/files/home/FlexTranslator
+
+[debug] [2026-02-02T10:21:58.019Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-02-02T10:21:58.019Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
