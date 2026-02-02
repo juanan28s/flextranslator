@@ -27,9 +27,10 @@ export const TranslationLog: React.FC<TranslationLogProps> = ({ items, connectio
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // AUTO-SCROLL: Ensures the user always sees the most recent transcription chunks.
+  const lastItemText = items[items.length - 1]?.translatedText;
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [items.length, items[items.length - 1]?.translatedText]);
+  }, [items.length, lastItemText]);
 
   // EMPTY STATE: Displayed when no translations exist.
   if (items.length === 0) {

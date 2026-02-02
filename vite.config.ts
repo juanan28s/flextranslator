@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { VitePWA as _VitePWA } from 'vite-plugin-pwa'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -33,4 +34,15 @@ export default defineConfig({
     })
     */
   ],
-});
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('jspdf') || id.includes('html2canvas')) {
+            return 'pdf-engine';
+          }
+        }
+      }
+    }
+  }
+})

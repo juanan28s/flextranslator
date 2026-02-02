@@ -282,8 +282,9 @@ export const useLiveTranslator = () => {
       try {
         await recorder.start();
         audioRecorderRef.current = recorder;
-      } catch {
-        setError("Microphone access failed.");
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : "Unknown error";
+        setError(`Microphone failed: ${msg}`);
         setConnectionState('disconnected');
         return;
       }

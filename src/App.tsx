@@ -31,7 +31,6 @@ import { LanguageSelectionScreen } from './components/LanguageSelectionScreen';
 import { ContextChangeModal } from './components/ContextChangeModal';
 import { TextInputModal } from './components/TextInputModal';
 import { useLiveTranslator } from './hooks/useLiveTranslator';
-import { generatePDF } from './utils/pdfUtils';
 import { Language } from './constants/languages';
 
 const App: React.FC = () => {
@@ -106,13 +105,20 @@ const App: React.FC = () => {
   const handleExportClick = () => { setIsExportModalOpen(true); };
 
   /**
-   * Executes the PDF generation utility.
+   * Executes the PDF generation utility via dynamic import to keep initial bundle size small.
    */
   const handleExportConfirm = async (filename: string) => {
     setIsGeneratingPdf(true);
     // 100ms delay ensures the UI has painted the "Generating..." state before CPU spike.
     await new Promise(resolve => setTimeout(resolve, 100));
-    await generatePDF(items, filename);
+    
+    try {
+      const { generatePDF } = await import('./utils/pdfUtils');
+      await generatePDF(items, filename);
+    } catch (err) {
+      console.error("Failed to load PDF engine:", err);
+    }
+
     setIsGeneratingPdf(false);
     setIsExportModalOpen(false);
   };

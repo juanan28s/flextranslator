@@ -21,6 +21,7 @@
  */
 
 import { createPcmBlob, downsampleBuffer } from './audioUtils';
+import captureWorkletUrl from './capture.worklet.ts?worker&url';
 
 export class AudioRecorder {
   private audioContext: AudioContext | null = null;
@@ -45,7 +46,13 @@ export class AudioRecorder {
    */
   async start() {
     try {
-      // 1. Request microphone access immediately (User Gesture)
+      // 1. Initialize AudioContext IMMEDIATELY (User Gesture)
+      // On some mobile browsers, even a single await (like for mic permission) 
+      // can cause the browser to lose the "user gesture" context.
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      this.audioContext = new AudioContextClass({ sampleRate: 16000 });
+
+      // 2. Request microphone access
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
@@ -57,20 +64,18 @@ export class AudioRecorder {
 
       this.onStream(this.mediaStream);
 
-      // 2. Initialize AudioContext (User Gesture)
-      // We use the standard constructor and handle the webkit prefix safely.
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      this.audioContext = new AudioContextClass({ sampleRate: 16000 });
-
-      // 3. Force Resume (Crucial for Mobile Safari/Chrome)
+      // 3. Force Resume
       if (this.audioContext.state === 'suspended') {
         await this.audioContext.resume();
       }
 
       // 4. Load the Worklet
-      await this.audioContext.audioWorklet.addModule(
-        new URL('./capture.worklet.ts', import.meta.url)
-      );
+      try {
+        await this.audioContext.audioWorklet.addModule(captureWorkletUrl);
+      } catch (err) {
+        console.error("AudioWorklet module loading failed:", err);
+        throw new Error("Could not load audio processing module.");
+      }
 
       const targetRate = 16000;
       const contextRate = this.audioContext.sampleRate;
@@ -98,7 +103,7 @@ export class AudioRecorder {
 
     } catch (error) {
       console.error("AudioRecorder Start Failed:", error);
-      this.stop(); // Clean up on failure
+      this.stop(); 
       throw error;
     }
   }
